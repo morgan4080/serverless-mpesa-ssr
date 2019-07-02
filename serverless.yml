@@ -82,13 +82,10 @@ functions:
     events:
       - http: GET /
       - http: 'GET /{param+}'
-    vpc:
-      securityGroupIds:
-        - sg-c55eb3ae
-      subnetIds:
-        - subnet-06efa93c86cfadc14
-        - subnet-0ad5e4a2285c8b993
-
+      - http:
+          path: signin
+          method: post
+          cors: true
 
   appendText:
     handler: handler.appendText
@@ -113,12 +110,6 @@ functions:
           path: register
           method: post
           cors: true
-    vpc:
-    securityGroupIds:
-      - sg-c55eb3ae
-    subnetIds:
-      - subnet-06efa93c86cfadc14
-      - subnet-0ad5e4a2285c8b993
 
   validation:
     handler: handler.validation

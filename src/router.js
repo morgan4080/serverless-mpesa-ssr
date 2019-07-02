@@ -9,6 +9,8 @@ export function createRouter () {
         mode: 'history',
         routes: [
             { path: '/', component: () => import('./components/Home.vue') },
+            { path: '/login', component: () => import('./components/login.vue') },
+            { path: '/signup', component: () => import('./components/signup.vue') },
             { path: '/item/:id', component: () => import('./components/item.vue') }
         ]
     })

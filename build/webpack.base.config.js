@@ -6,8 +6,10 @@ const { VueLoaderPlugin } = require('vue-loader');
 
 const isProd = process.env.NODE_ENV === 'production';
 
+const mock = true;
+
 module.exports = {
-  devtool: isProd
+  devtool: mock
     ? false
     : '#cheap-module-source-map',
   output: {
@@ -38,16 +40,41 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: '[name].[ext]?[hash]'
-        }
+        test: /\.(svg)$/i,
+        use: [
+          'file-loader',
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              bypassOnDebug: true, // webpack@1.x
+              disable: true, // webpack@2.x and newer
+              name: 'images/[hash]-[name].[ext]'
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(gif|png|jp(e*)g)$/,
+        use: [{
+          loader: 'url-loader',
+          options: {
+            name: 'images/[hash]-[name].[ext]'
+          }
+        }]
+      }
+      ,{
+        test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'fonts/'
+          }
+        }]
       },
       {
         test: /\.scss$/,
-        use: isProd
+        use: mock
           ? ExtractTextPlugin.extract({
               use: [
                 {
@@ -60,12 +87,16 @@ module.exports = {
             })
           : ['vue-style-loader', 'css-loader', 'sass-loader']
       },
+      {
+        test: /\.json$/,
+        loaders: ['json-loader']
+      }
     ]
   },
   performance: {
     hints: false
   },
-  plugins: isProd
+  plugins: mock // isProd
     ? [
         new VueLoaderPlugin(),
         new webpack.optimize.UglifyJsPlugin({
@@ -80,4 +111,4 @@ module.exports = {
         new VueLoaderPlugin(),
         new FriendlyErrorsPlugin()
       ]
-}
+};

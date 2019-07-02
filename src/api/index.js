@@ -1,20 +1,22 @@
-const {API} = require('axios-client');
+import { createAPI } from 'create-api';
 const NEWS_API = "97c568e8528f40be944a8c047aef2210";
 
-const client = API();
+let client = createAPI();
 
-if(client.server){
+if(client.config){
     cacheSources();
 }
 
 function cacheSources(){
-    fetchSources();
-    setTimeout(cacheSources, 1000 * 60 * 10)
+    /*fetchSources();
+    setTimeout(cacheSources, 1000 * 60 * 10)*/
+    console.log('cche sources running')
 }
 
 function fetch(url, params = null){
 
-    const cache = client.cachedItems;
+    console.log('fetch running', url + params)
+    /*const cache = client.cachedItems;
 
     let key;
 
@@ -43,7 +45,7 @@ function fetch(url, params = null){
                 reject("Axios issue: " + err)
             })
         });
-    }
+    }*/
 }
 
 export function fetchSources() {
@@ -57,4 +59,3 @@ export function fetchHeadlines(source) {
 export function fetchItem() {
     return fetch('#');
 }
-

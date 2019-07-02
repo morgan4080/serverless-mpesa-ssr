@@ -2,8 +2,13 @@ const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB();
 
 module.exports.createCollection = collectionData => {
-    return createCollection(collectionData).then((error, data) => {
-
+    return createCollection(collectionData)
+        .then((error, data) => {
+            console.log('Database initialization complete.', data);
+            return {
+                table_status: data.TableStatus
+            }
+        }).catch( error => {
             if (error) {
                 if (error.message.indexOf('Table already exists') !== -1) {
                     console.log('table found!', error.message);
@@ -11,16 +16,11 @@ module.exports.createCollection = collectionData => {
                 } else {
                     console.log(error, error.stack);
                 }
-            } else {
-                console.log('Database initialization complete.', data);
-                return {
-                    table_status: data.TableStatus
-                }
             }
-        })
+        });
 };
 
-function createCollection(collectionData, callback) {
+function createCollection(collectionData) {
 
     const params = {
 
@@ -63,5 +63,5 @@ function createCollection(collectionData, callback) {
         ]
     };
 
-    dynamodb.createTable(params, callback);
+    return dynamodb.createTable(params).promise();
 }

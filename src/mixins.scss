@@ -1,0 +1,44 @@
+/* ==========================================================================
+2. Gradient mixins
+========================================================================== */
+
+@mixin theme-hero-gradient(){
+  background-image: -webkit-linear-gradient(to left, #5202d8 0%, #3c019e 100%);
+  background-image: linear-gradient(to left, #5202d8 0%, #3c019e 100%);
+}
+
+@mixin primary-gradient-top(){
+  background: $primary;
+  background: -webkit-linear-gradient(to top, $primary, $primary-accent) !important;
+  background: linear-gradient(to top, $primary, $primary-accent) !important;
+}
+
+@mixin primary-gradient-left(){
+  background: $primary;
+  background: -webkit-linear-gradient(to left, $primary, $primary-accent) !important;
+  background: linear-gradient(to left, $primary, $primary-accent) !important;
+}
+
+@mixin primary-gradient-right(){
+  background: $primary;
+  background: -webkit-linear-gradient(to left, $primary, $primary-accent) !important;
+  background: linear-gradient(to left, $primary, $primary-accent) !important;
+}
+
+@mixin secondary-gradient-top(){
+  background: $secondary;
+  background: -webkit-linear-gradient(to top, $secondary, $secondary-accent) !important;
+  background: linear-gradient(to top, $secondary, $secondary-accent) !important;
+}
+
+@mixin secondary-gradient-right(){
+  background: $secondary;
+  background: -webkit-linear-gradient(to left, $secondary, $secondary-accent) !important;
+  background: linear-gradient(to left, $secondary, $secondary-accent) !important;
+}
+
+@mixin secondary-gradient-left(){
+  background: $secondary;
+  background: -webkit-linear-gradient(to left, $secondary, $secondary-accent) !important;
+  background: linear-gradient(to left, $secondary, $secondary-accent) !important;
+}
