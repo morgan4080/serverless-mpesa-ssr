@@ -4,9 +4,8 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
-// Assume we have a universal API that returns Promises
-// and ignore the implementation details
-import { fetchSources, fetchHeadlines, fetchItem } from "./api/index"
+// universal API that returns Promises
+import { fetchSources, fetchHeadlines, fetchItem, doLogin } from "./api/index"
 
 export function createStore () {
     return new Vuex.Store({
@@ -15,9 +14,9 @@ export function createStore () {
         state: () => ({
             items: {},
             sources: {},
-            news: {}
+            news: {},
+            authCredentials: {}
         }),
-
         actions: {
             fetchSources({commit}){
                 return fetchSources().then((sources) => {
@@ -35,9 +34,19 @@ export function createStore () {
                 return fetchItem(id).then(item => {
                     commit('setItem', { id, item })
                 })
+            },
+            doLogin ({commit}, datum) {
+                return doLogin(datum).then( (results) => {
+                    console.log(results);
+                    commit('setAuth', results)
+                })
+            },
+            doSignup({commit}, datum) {
+                return doSignup(datum).then((results) => {
+                    console.log(results);
+                })
             }
         },
-
         mutations: {
             setSources(state, {sources}){
                 Vue.set(state.sources, 'sources', sources);
@@ -47,6 +56,9 @@ export function createStore () {
             },
             setItem (state, { id, item }) {
                 Vue.set(state.items, id, item)
+            },
+            setAuth (state, payload ) {
+                state.authCredentials['auth'] = payload;
             }
         }
     })

@@ -15,7 +15,7 @@
               />
               <p class="logo">{{siteName}}</p>
             </div>
-            <form :model="form" class="contact-form">
+            <form :model="form" @submit.prevent="makeSubmit" class="contact-form">
               <div class="control-material is-secondary has-icons-right">
                 <input class="material-input" v-model="form.email" type="text" required>
                 <span class="material-highlight"></span>
@@ -31,15 +31,15 @@
               </div>
 
               <div class="has-text-centered">
-                <span @click="makeSubmit" class="button is-primary is-centered-responsive">
+                <button type="submit" class="button is-primary is-centered-responsive">
                   <span class="textline">Login!</span>
-                </span>
+                </button>
               </div>
             </form>
             <div class="has-text-centered">
               <p class="links">Don't have an account?
-                <router-link to="/signup">Sign up now !</router-link></p
-              >
+                <router-link to="/signup">Sign up now !</router-link>
+              </p>
             </div>
           </div>
         </div>
@@ -50,32 +50,50 @@
 </template>
 
 <script>
-import Particle from "./Particle.vue";
+  import Particle from "./Particle.vue";
+  import { mapState } from 'vuex';
+  import $ from "jquery";
 
 export default {
   name: "login",
-  components: {
-    particle: Particle
-  },
-  mounted() {
-
-  },
   data: function() {
     return {
       siteName: "MUX-EXP",
+      token: null,
       form: {
         email: '',
         password: ''
       }
     }
   },
-  computed: {
-
+  components: {
+    particle: Particle
   },
+  mounted() {
+    let th = this;
+    function setter(x) {
+      th.setToken(x)
+    }
+    $(document).ready(function($) {
+      "use strict";
+      let meta = $('meta[name="csrf-token"]');
+      setter(meta.attr( 'content' ));
+    });
+  },
+  computed: mapState({
+    /*cookies(state) {
+      return state.cookie
+    }*/
+  }),
   methods: {
+    setToken(t) {
+      this.token = t;
+      console.log(this.token)
+    },
     makeSubmit() {
       console.log('sending validation data', this.form.email + ' ' + this.form.password );
+      return this.$store.dispatch('doLogin',  { details: {userEmail: this.form.email, userPassword: this.form.password}, sec: this.token})
     }
   }
-};
+}
 </script>

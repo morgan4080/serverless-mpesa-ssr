@@ -15,7 +15,14 @@ export default context => {
       return reject({ url: fullPath })
     }
 
-    // store.state.cookie = context.cookies;
+    if (context.dat) {
+      router.app.$store.state.dat = context.dat;
+    }
+
+    if (context.messages) {
+      router.app.$store.state.messages = context.messages;
+    }
+    // router.app.$store.state.xxxx = context.xxxxx;
 
     // set server-side router's location
     router.push(url);

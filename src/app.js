@@ -5,9 +5,10 @@ import { createRouter } from './router';
 import { sync } from 'vuex-router-sync';
 import NavBar from './components/NavBar.vue';
 
-import titleMixin from './util/title'
-import * as filters from './util/filters'
+import titleMixin from './util/title';
+import * as filters from './util/filters';
 
+Vue.config.productionTip = false;
 
 Vue.directive('scroll', {
   inserted(el, binding) {

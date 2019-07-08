@@ -19,7 +19,7 @@ service: serverless-mpesa # NOTE: update this with your service name
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs10.16.0
   region: ca-central-1
   profile: default
   
