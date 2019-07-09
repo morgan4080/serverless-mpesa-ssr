@@ -1,12 +1,12 @@
 import { createAPI } from 'create-api';
 const NEWS_API = "97c568e8528f40be944a8c047aef2210";
+let client_http = createAPI();
 
-let client = createAPI();
-
-const instance = client.create({
+const instance = client_http.create({
+    withCredentials: true
 });
 
-if(client.config){
+if(client_http.config){
     cacheSources();
 }
 
@@ -20,11 +20,18 @@ function send(url, datum) {
     console.log('send running');
     console.log(datum.sec);
 
+    const params = new URLSearchParams();
+    params.append('email', `${datum.details.username}`);
+    params.append('password', `${datum.details.password}`);
+
 
     return new Promise((resolve, reject) => {
         instance.defaults.headers.common['CSRF-Token'] = datum.sec;
-        instance.post(url, {
-            data: datum.details
+        instance({
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+            data: params,
+            url
         }).then((res) => {
             if(res.statusText === "OK"){
                 resolve(res.data);
@@ -89,7 +96,7 @@ export function fetchItem() {
 }
 
 export function doLogin(datum) {
-    return send('signin/', datum)
+    return send('/signin', datum)
 }
 
 export function doSignup(datum) {

@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 
 // universal API that returns Promises
-import { fetchSources, fetchHeadlines, fetchItem, doLogin } from "./api/index"
+import { fetchSources, fetchHeadlines, fetchItem, doLogin, doSignup } from "./api/index"
 
 export function createStore () {
     return new Vuex.Store({
@@ -41,13 +41,20 @@ export function createStore () {
                     commit('setAuth', results)
                 })
             },
-            doSignup({commit}, datum) {
+            doSignup ({commit}, datum) {
                 return doSignup(datum).then((results) => {
                     console.log(results);
+                    commit('setAuth', results)
                 })
+            },
+            clearMessages({commit}) {
+                return commit('setMessages')
             }
         },
         mutations: {
+            setMessages(state) {
+                state.messages = {}
+            },
             setSources(state, {sources}){
                 Vue.set(state.sources, 'sources', sources);
             },

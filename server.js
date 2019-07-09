@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const express = require('express');
 const path = require('path');
@@ -12,6 +11,130 @@ const compression = require('compression');
 const microcache = require('route-cache');
 const passport = require('passport');
 const flash = require('connect-flash');
+const bcrypt = require('bcrypt-nodejs');
+const LocalStrategy = require('passport-local').Strategy;
+
+const unique = require('./unique');
+const AWS = require('aws-sdk');
+AWS.config.update({
+  region: "ca-central-1",
+  endpoint: "http://127.0.0.1:8000"
+});
+
+const ddb = new AWS.DynamoDB.DocumentClient();
+
+const tableName = 'user';
+
+function encrypt_password(password) {
+  return bcrypt.hash(password, bcrypt.genSaltSync(5), null);
+}
+
+function valid_password(password, PW) {
+  return bcrypt.compareSync(password, PW);
+}
+
+passport.serializeUser((user,done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(( id, done) => {
+  ddb.getItem({
+    "TableName":tableName,
+    "Key": {"id":{"N":id}}
+    }, (err,data) => {
+    if (err) done(err, data);
+    done(err, {"id": data.Item.id.N, "email": data.Item.email.S, "pw": data.Item.pw.S});
+  })
+});
+
+passport.use('local-signup', new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password',
+  passReqToCallback: true
+}, (req, email, password, done) => {
+
+  console.log('doing signup');
+
+  const params = {
+    "TableName":tableName,
+    "IndexName":"email-index",
+    "KeyConditions":{
+      "email":{
+        "ComparisonOperator": "EQ",
+        "AttributeValueList": [{"S":email}]
+      }
+    }
+  };
+
+  ddb.query(params, (err,data) => {
+
+    console.log('query', data);
+
+    if (err) return done(err);
+    if (data.Items.length > 0) return done(null, false, { message: 'username/email is already taken' });
+    const params = {
+      "TableName": tableName,
+      "Item" : {
+        "id": {"N": unique.generateUserId()},
+        "email": {"S":email},
+        "pw": {"S": encrypt_password(password)}
+      }
+    };
+
+    ddb.putItem(params, (err, data) => {
+
+      console.log('put', data);
+
+      if (err) {
+        return done(null, false, { message: `Apologies, please try again now. + ${ err }` });
+      } else {
+        return done(null, params.Item);
+      }
+    })
+  })
+
+}));
+
+passport.use('local-signin', new LocalStrategy({
+  usernameField : 'email',
+  passwordField : 'password',
+  passReqToCallback : true
+}, (req, email, password, done) => {
+  const params = {
+    "TableName":tableName,
+    "IndexName":"email-index",
+    "KeyConditions":{
+      "email":{
+        "ComparisonOperator":"EQ",
+        "AttributeValueList":[{"S":email}]
+      }
+    }
+  };
+
+  ddb.query(params, function(err,data){
+    if (err) return done(err);
+
+    if (data.Items.length === 0) return done(null, false, { message: 'No user found.' });
+
+    ddb.getItem({ "TableName": tableName, "Key": { "id":data.Items[0]["id"]} }, (err,data) => {
+
+      if (err) return done(err);
+
+      if (!valid_password(password, data.Item.pw.S)) {
+
+        return done(null, false, { message: `Oops! Wrong password..` });
+
+      } else {
+
+        return done(null, data.Item);
+
+      }
+    })
+  });
+
+}));
+
+const server = express();
 
 const serverBundle = require('./dist/vue-ssr-server-bundle.json');
 const { createBundleRenderer } = require('vue-server-renderer');
@@ -21,26 +144,6 @@ const useMicroCache = process.env.MICRO_CACHE !== 'false';
 const serverInfo =
     `express/${require('express/package.json').version} ` +
     `vue-server-renderer/${require('vue-server-renderer/package.json').version}`;
-
-const server = express();
-require('./passport');
-
-server.use(cookieParser());
-server.use(session({secret: '!@2fpLxthn', resave: false, saveUninitialized: false}));
-server.use(flash());
-server.use(passport.initialize());
-server.use(passport.session());
-
-const csrfProtection = CSRF({ cookie: true });
-server.use(csrfProtection);
-// server.use((req, res, next)=> {
-//
-//   let token = req.csrfToken();
-//   res.cookie('XSRF-TOKEN', token);
-//   res.locals.csrfToken = token;
-//
-//   next();
-// });
 
 function createRenderer (bundle, options) {
   // https://github.com/vuejs/vue/blob/dev/packages/vue-server-renderer/README.md#why-use-bundlerenderer
@@ -76,6 +179,23 @@ renderer = createRenderer(bundle, {
   clientManifest
 });
 
+server.use(express.urlencoded());
+server.use(express.json());
+
+server.use(cookieParser());
+server.use(session({
+  secret: '!@2fpLxthn',
+  resave: false,
+  saveUninitialized: false
+}));
+
+server.use(passport.initialize());
+server.use(passport.session());
+server.use(flash());
+
+const csrfProtection = CSRF({ cookie: true });
+server.use(csrfProtection);
+
 const serve = (path, cache) => express.static(resolve(path), {
   maxAge: cache &&  0
 });
@@ -95,7 +215,6 @@ server.use('/service-worker.js', serve('./dist/service-worker.js'));
 // https://www.nginx.com/blog/benefits-of-microcaching-nginx/
 server.use(microcache.cacheSeconds(1, req => useMicroCache && req.originalUrl));
 
-
 server.get('*', (req, res, next) => {
   const s = Date.now();
 
@@ -112,9 +231,11 @@ server.get('*', (req, res, next) => {
         context['dat'] = 'some dara'
     }
     
-    if (req.originalUrl === '/signup') {
-        context['messages'] = req.flash('error')
-    }
+    /*if (req.originalUrl === '/signup') {
+        context['messages'] = req.flash('error');
+      context['hasErrors'] = context['messages'].length > 0
+
+    }*/
 
   const handleError = err => {
 
@@ -140,6 +261,28 @@ server.get('*', (req, res, next) => {
   })
 });
 
+/* passport.authenticate('local-signup', {
+  successRedirect : '/profile',
+  failureRedirect : '/login',
+  failureFlash : true
+}));*/
+
+server.post('/signup',
+    (req, res, next) => {
+      console.log(req.body);
+      passport.authenticate('local-signup', { failureFlash : true }, (err, user, info) => {
+        req.session.save((err) => {
+          if (err) {
+            return next(err);
+          }
+          res.status(200).json({
+            test: user,
+            test1: info
+          });
+        });
+      })(req, res, next);
+    });
+
 server.post('/signin', (req, res, next) => {
   if (req.originalUrl === '/signin') {
     res.status(200).json({
@@ -150,13 +293,7 @@ server.post('/signin', (req, res, next) => {
     console.error(`error during post : ${ req.url }`);
     res.status(500).send('500 | Internal Server Error');
   }
-    /*res.redirect('/');*/
+  /*res.redirect('/');*/
 });
-
-server.post('/signup', passport.authenticate('local.signup', {
-    successRedirect: '/profile',
-    failureRedirect: '/signup',
-    failureFlash: true
-}));
 
 module.exports = server;

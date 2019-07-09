@@ -44,6 +44,15 @@
               </div>
             </form>
             <div class="has-text-centered">
+              <article v-if="hasError" class="message is-danger is-small">
+                <div class="message-body">
+                  <button class="delete is-small" @click="clearMessages" aria-label="delete"></button>
+                  <span v-for="message in messages">
+                    <span><strong>Error</strong>, {{ message }}</span>
+                  </span>
+                </div>
+              </article>
+
               <p class="links">Already have an account?
                 <router-link to="/login">Log in now !</router-link>
               </p>
@@ -92,18 +101,25 @@ export default {
     });
   },
   computed: mapState({
-    /*cookies(state) {
-      return state.cookie
-    }*/
+    messages(state) {
+      return state.messages
+    },
+    hasError(state) {
+      return state.hasErrors
+    }
   }),
   methods: {
+    clearMessages() {
+      return this.$store.dispatch('clearMessages')
+    },
     setToken(t) {
       this.token = t;
       console.log(this.token)
     },
     makeSubmit() {
+      // userAlias: this.form.username,
       console.log('sending validation data', this.form.email + ' ' + this.form.password );
-      return this.$store.dispatch('doSignup',  { details: {userUsername: this.form.username, userEmail: this.form.email, userPassword: this.form.password}, sec: this.token})
+      return this.$store.dispatch('doSignup',  { details: {username: this.form.email, password: this.form.password}, sec: this.token})
     }
   }
 };
