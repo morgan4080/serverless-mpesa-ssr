@@ -4,7 +4,12 @@
 
 <script>
     export default {
-        name: "profile"
+        name: "profile",
+        beforeEnter: (to, from, next) => {
+            next(vm => {
+                console.log(vm.$store.state.authStatus)
+            })
+        }
     }
 </script>
 

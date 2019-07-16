@@ -16,26 +16,23 @@ function cacheSources(){
     setTimeout(cacheSources, 1000 * 60 * 10)*/
 }
 
-function send(url, datum) {
-    console.log('send running');
-    console.log(datum.sec);
+function send(url, payload) {
 
     const params = new URLSearchParams();
-    params.append('email', `${datum.details.username}`);
-    params.append('password', `${datum.details.password}`);
-
+    params.append('email', `${payload.details.username}`);
+    params.append('password', `${payload.details.password}`);
 
     return new Promise((resolve, reject) => {
-        instance.defaults.headers.common['CSRF-Token'] = datum.sec;
+        instance.defaults.headers.common['CSRF-Token'] = payload.sec;
         instance({
             method: 'POST',
             headers: { 'content-type': 'application/x-www-form-urlencoded' },
             data: params,
             url
         }).then((res) => {
-            if(res.statusText === "OK"){
+            if(res.statusText === "OK") {
                 resolve(res.data);
-            }else{
+            } else{
                 reject("API error: " + res);
             }
         }).catch((err) => {
@@ -51,7 +48,7 @@ function send(url, datum) {
 function fetching(url, params = null){
 
     console.log('fetch running', url + params);
-    const cache = client.cachedItems;
+    const cache = client_http.cachedItems;
 
     let key;
 
@@ -65,7 +62,7 @@ function fetching(url, params = null){
         return Promise.resolve(cache.get(key));
     }else {
         return new Promise((resolve, reject) => {
-            client.get(url, {
+            client_http.get(url, {
                 params: params
             }).then((res) => {
 
@@ -95,10 +92,14 @@ export function fetchItem() {
     return fetching('#');
 }
 
-export function doLogin(datum) {
-    return send('/signin', datum)
+export function doLogin(payload) {
+    return send('/signin', payload)
 }
 
-export function doSignup(datum) {
-    return send('/signup', datum)
+export function doSignup(payload) {
+    return send('/signup', payload)
+}
+
+export function doLogout(payload) {
+    return send('/logout', payload)
 }

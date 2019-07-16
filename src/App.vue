@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
   export default {
       name: "App",
       mounted () {
@@ -19,11 +20,22 @@
 
           }
       },
-      computed: {
-
-      },
+      computed: mapState({
+          authState(state) {
+              return state.authStatus
+          }
+      }),
       methods: {
-
+          setLogged(x) {
+              return this.$store.dispatch('watchAuth', x)
+          }
+      },
+      created() {
+          if (this.authState) {
+              this.setLogged(true)
+          } else {
+              this.setLogged(false)
+          }
       }
   }
 </script>

@@ -38,19 +38,18 @@
             </form>
 
             <div class="has-text-centered">
-              <article v-if="hasError" class="message is-danger is-small">
-                <div class="message-body">
-                  <button class="delete is-small" @click="clearMessages" aria-label="delete"></button>
-                  <span v-for="message in messages">
-                    <span><strong>Error</strong>, {{ message }}</span>
-                  </span>
-                </div>
-              </article>
-
               <p class="links">Don't have an account?
                 <router-link to="/signup">Sign up now !</router-link>
               </p>
             </div>
+            <article v-if="hasError" class="message is-danger is-small">
+              <button class="delete clear" @click="clearMessages" aria-label="delete"></button>
+              <div class="message-body">
+                <span v-for="message in messages">
+                <span> {{ message }}</span>
+              </span>
+              </div>
+            </article>
           </div>
         </div>
         <div class="bnr column is-8"></div>
@@ -92,11 +91,14 @@ export default {
   },
   computed: mapState({
     messages(state) {
-      return state.messages
+      return state.authD['auth'].message;
     },
     hasError(state) {
       return state.hasErrors
-    }
+    },
+      authState(state) {
+          return state.authStatus
+      }
   }),
   methods: {
     clearMessages() {
@@ -107,9 +109,23 @@ export default {
       console.log(this.token)
     },
     makeSubmit() {
-      console.log('sending validation data', this.form.email + ' ' + this.form.password );
-      return this.$store.dispatch('doLogin',  { details: {username: this.form.email, password: this.form.password}, sec: this.token})
+      return this.$store.dispatch('doLogin',  { details: {username: this.form.email, password: this.form.password}, sec: this.token}).then(results => {
+        console.log(results);
+        if (results.redirect) this.$router.push(results.redirect)
+      })
+    },
+      doRedirect() {
+          return this.$router.push('/dashboard')
+      }
+  },
+    created() {
+        if (this.authState) {
+            this.doRedirect()
+        }
     }
-  }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>

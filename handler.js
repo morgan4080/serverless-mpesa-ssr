@@ -4,6 +4,7 @@ const manageFile = require('./manageFile');
 const manageBusiness = require('./manageBusiness');
 const server = require('./server');
 const http = require('serverless-http');
+const binaryMimeTypes = require('./binaryMimeTypes');
 
 
 module.exports.appendText = (event, context, callback) => {
@@ -93,4 +94,6 @@ module.exports.confirmation = (event, context, callback) => {
   });
 };
 
-module.exports.client = http(server);
+module.exports.client = http(server, {
+    binary: binaryMimeTypes
+});

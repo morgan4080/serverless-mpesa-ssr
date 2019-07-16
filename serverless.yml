@@ -19,10 +19,15 @@ service: serverless-mpesa # NOTE: update this with your service name
 
 provider:
   name: aws
-  runtime: nodejs10.16.0
+  runtime: nodejs10.x
   region: ca-central-1
+  stage: ${self:custom.secrets.NODE_ENV}
   profile: default
-  
+  environment:
+    NODE_ENV: ${self:custom.secrets.NODE_ENV}
+    DYNAMODB_TABLE: ${self:custom.secrets.DYNAMODB_TABLE}
+    SESSIONS_TABLE: ${self:custom.secrets.SESSIONS_TABLE}
+
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -33,16 +38,13 @@ provider:
 
     - Effect: Allow
       Action:
-        - dynamodb:DescribeTable
         - dynamodb:Query
         - dynamodb:Scan
-        - dynamodb:CreateTable
-        - dynamodb:ListTables
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:ddblocal:000000000000:table/user"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -72,8 +74,9 @@ provider:
 #  exclude:
 #    - exclude-me.js
 #    - exclude-me-dir/**
-
 plugins:
+  - serverless-dynamodb-local
+  - serverless-apigw-binary
   - serverless-offline
 
 functions:
@@ -81,13 +84,18 @@ functions:
     handler: handler.client
     events:
       - http: GET /
-      - http: 'GET /{param+}'
+#      - http: 'GET /{param+}'
+      - http: GET {proxy+}
       - http:
           path: /signin
           method: post
           cors: true
       - http:
           path: /signup
+          method: post
+          cors: true
+      - http:
+          path: /logout
           method: post
           cors: true
 
@@ -131,6 +139,22 @@ functions:
           method: post
           cors: true
 
+
+custom:
+  secrets: ${file(secrets.json)}
+  apigwBinary:
+    types:
+      - '*/*'
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      noStart: true
+    migration:
+      dir: migrations
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -166,9 +190,52 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
+
 resources:
  Resources:
    S3OperationsBucket:
      Type: AWS::S3::Bucket
      Properties:
        BucketName: serverless-s3-mpesa-bucket
+
+   user:
+     Type: 'AWS::DynamoDB::Table'
+     DeletionPolicy: Delete
+     Properties:
+       AttributeDefinitions:
+         - AttributeName: email
+           AttributeType: S
+         - AttributeName: id
+           AttributeType: S
+       GlobalSecondaryIndexes:
+         - IndexName: email-index
+           KeySchema:
+             - AttributeName: email
+               KeyType: HASH
+           Projection:
+             ProjectionType: KEYS_ONLY
+           ProvisionedThroughput:
+             ReadCapacityUnits: '5'
+             WriteCapacityUnits: '5'
+       ProvisionedThroughput:
+         ReadCapacityUnits: '5'
+         WriteCapacityUnits: '5'
+       KeySchema:
+         - AttributeName: id
+           KeyType: HASH
+       TableName: ${self:provider.environment.DYNAMODB_TABLE}
+
+   server-glade-sessions:
+     Type: 'AWS::DynamoDB::Table'
+     DeletionPolicy: Delete
+     Properties:
+       AttributeDefinitions:
+         - AttributeName: id
+           AttributeType: S
+       ProvisionedThroughput:
+         ReadCapacityUnits: '5'
+         WriteCapacityUnits: '5'
+       KeySchema:
+         - AttributeName: id
+           KeyType: HASH
+       TableName: ${self:provider.environment.SESSIONS_TABLE}

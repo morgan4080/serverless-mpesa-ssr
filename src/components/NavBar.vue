@@ -5,12 +5,12 @@
             <div class="container">
                 <div class="navbar-brand">
 
-                        <router-link to="/" class="navbar-item">
+                        <router-link to="/" tag="span" class="navbar-item">
                             <img class="logos" alt="MUX-EXP" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" width="200" height="200">
                             <span id="ellogo">{{siteName}}</span>
                         </router-link>
 
-                    <span :class="is_active" v-on:click="switchCollapse" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span :class="is_active" @click="switchCollapse" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
@@ -36,25 +36,27 @@
                                 SERVICES
                             </router-link>
 
-                            <div class="navbar-dropdown">
+                            <span role="button" @click="switchExpand" aria-label="sub-menu" aria-expanded="false" id="expander" data-target="navbarCollapse"></span>
+
+                            <div :class="is_expanded" id="navbarCollapse" class="navbar-dropdown">
                                 <router-link to="/" class="navbar-item">
-                                    Systems Integration
+                                    Cloud Services & Deployment
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Web Services and APIs
+                                    Systems Integration & Networks
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Web Design and Development
+                                    Web Services & APIs
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Data analytics and Business Intelligence
+                                    Web Design & Development
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Cloud Hosted Services
-                                </router-link>
-                                <hr class="navbar-divider">
-                                <router-link to="/" class="navbar-item">
-                                    Digital Payments and Automation
+                                    Databases & Data Modelling
                                 </router-link>
                             </div>
                         </div>
@@ -67,14 +69,14 @@
 
 
                         <div class="navbar-item">
-                                <router-link to="/login" class="button is-primary slanted is-centered-responsive">
-                                    <span class="textline">Login</span>
+                                <router-link to="/login" tag="span" class="button is-primary slanted is-centered-responsive">
+                                    <a class="textline">Login</a>
                                 </router-link>
                         </div>
 
                         <div class="navbar-item">
-                                <router-link to="/signup" class="button is-primary slanted is-centered-responsive">
-                                    <span class="textline">Signup</span>
+                                <router-link to="/signup" tag="span" class="button is-primary slanted is-centered-responsive">
+                                    <a class="textline">Signup</a>
                                 </router-link>
                         </div>
                     </div>
@@ -85,12 +87,12 @@
         <nav :class="{unCollapse: isCollapse}" class="navbar is-dark parent" role="navigation" aria-label="main navigation">
             <div class="container">
                 <div class="navbar-brand">
-                        <router-link to="/" class="navbar-item">
+                        <router-link to="/" tag="span" class="navbar-item">
                             <img class="logos" alt="MUX-EXP" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" width="200" height="200">
                             <span id="ellogo">{{siteName}}</span>
                         </router-link>
 
-                    <span :class="is_active" v-on:click="switchCollapse" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span :class="is_active" @click="switchCollapse" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
                         <span aria-hidden="true"></span>
@@ -116,25 +118,27 @@
                                 SERVICES
                             </router-link>
 
-                            <div class="navbar-dropdown">
+                            <span role="button" @click="switchExpand" aria-label="sub-menu" aria-expanded="false" id="expander" data-target="navbarCollapse"></span>
+
+                            <div :class="is_expanded" id="navbarCollapse" class="navbar-dropdown">
                                 <router-link to="/" class="navbar-item">
-                                    Systems Integration
+                                    Cloud Services & Deployment
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Web Services and APIs
+                                    Systems Integration & Networks
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Web Design and Development
+                                    Web Services & APIs
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Data analytics and Business Intelligence
+                                    Web Design & Development
                                 </router-link>
+
                                 <router-link to="/" class="navbar-item">
-                                    Cloud Hosted Services
-                                </router-link>
-                                <hr class="navbar-divider">
-                                <router-link to="/" class="navbar-item">
-                                    Digital Payments and Automation
+                                    Databases & Data Modelling
                                 </router-link>
                             </div>
                         </div>
@@ -146,14 +150,14 @@
                         </div>
 
                         <div class="navbar-item">
-                                <router-link to="/login" class="button is-primary slanted is-centered-responsive">
-                                    <span class="textline">Login</span>
+                                <router-link to="/login" tag="span" class="button is-primary slanted is-centered-responsive">
+                                    <a class="textline">Login</a>
                                 </router-link>
                         </div>
 
                         <div class="navbar-item">
-                                <router-link to="/signup" class="button is-primary slanted is-centered-responsive">
-                                    <span class="textline">Signup</span>
+                                <router-link to="/signup" tag="span" class="button is-primary slanted is-centered-responsive">
+                                    <a class="textline">Signup</a>
                                 </router-link>
                         </div>
                     </div>
@@ -170,6 +174,7 @@
         data: function () {
             return {
                 isCollapse: true,
+                isntExpanded: true,
                 siteName: 'MUX-EXP'
             }
         },
@@ -186,15 +191,23 @@
             },
             is_collapse() {
                 return !this.isCollapse;
+            },
+            is_expanded() {
+                if (this.isntExpanded){
+                    return ''
+                } else {
+                    return 'is-expanded'
+                }
             }
-        },
-        watch: {
-
         },
         methods: {
             switchCollapse() {
                 console.log('switching collapse');
                 this.isCollapse = !this.isCollapse ;
+            },
+            switchExpand() {
+                console.log('switching expander');
+                this.isntExpanded = !this.isntExpanded ;
             },
             handleScroll(evt, el) {
                 const timelineMax = new TimelineMax;

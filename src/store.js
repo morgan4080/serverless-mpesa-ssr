@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex);
 
 // universal API that returns Promises
-import { fetchSources, fetchHeadlines, fetchItem, doLogin, doSignup } from "./api/index"
+import { fetchSources, fetchHeadlines, fetchItem, doLogin, doSignup, doLogout } from "./api/index"
 
 export function createStore () {
     return new Vuex.Store({
@@ -15,7 +15,9 @@ export function createStore () {
             items: {},
             sources: {},
             news: {},
-            authCredentials: {}
+            authD: {},
+            hasErrors: false,
+            loggedIn: false
         }),
         actions: {
             fetchSources({commit}){
@@ -35,25 +37,82 @@ export function createStore () {
                     commit('setItem', { id, item })
                 })
             },
-            doLogin ({commit}, datum) {
-                return doLogin(datum).then( (results) => {
-                    console.log(results);
-                    commit('setAuth', results)
+            watchAuth ({dispatch}, payload) {
+                dispatch('setLoggedIn', payload);
+            },
+            doLogin({dispatch, commit}, payload) {
+                dispatch('clearMessages');
+                dispatch('clearErrors');
+                return new Promise((resolve, reject) => {
+                    doLogin(payload).then(results => {
+                        commit('setAuth', results);
+                        if (results['message'].length > 0) {
+                            dispatch('setErrors', true);
+                        }
+                        if (results['info'] || results['authenticated']) {
+                            dispatch('setLoggedIn', true);
+                        }
+                        resolve(results);
+                    }).catch(error => reject(error))
                 })
             },
-            doSignup ({commit}, datum) {
-                return doSignup(datum).then((results) => {
-                    console.log(results);
-                    commit('setAuth', results)
+            doSignup({dispatch, commit}, payload) {
+                dispatch('clearMessages');
+                dispatch('clearErrors');
+                return new Promise((resolve, reject) => {
+                    doSignup(payload).then(results => {
+                        commit('setAuth', results);
+                        if (results['message'].length > 0) {
+                            dispatch('setErrors', true);
+                        }
+                        if (results['authenticated']) {
+                            dispatch('setLoggedIn', true);
+                        }
+                        resolve(results);
+                    }).catch(error => reject(error))
                 })
             },
-            clearMessages({commit}) {
-                return commit('setMessages')
+            doLogout({dispatch, commit}, payload) {
+                return new Promise((resolve, reject) => {
+                    doLogout(payload).then( results => {
+                        dispatch('setLoggedIn', false);
+                        dispatch('setLoggedOut');
+                        commit('setAuth', results);
+                        resolve(results)
+                    }).catch(err => {
+                        reject(err)
+                    })
+                });
+            },
+            clearMessages({dispatch, commit}) {
+                dispatch('clearErrors');
+                return commit('setMessage')
+            },
+            clearErrors({commit}) {
+                return commit('setError')
+            },
+            setErrors({commit}, payload) {
+                return commit('setError', payload)
+            },
+            setLoggedIn({commit}, payload) {
+                return commit('setLogged', payload)
+            },
+            setLoggedOut({commit}) {
+                return commit('setLoggedOut')
             }
         },
         mutations: {
-            setMessages(state) {
-                state.messages = {}
+            setMessage(state, payload = {}) {
+                state.authD = payload;
+            },
+            setLogged(state, payload = false) {
+                state.loggedIn = payload;
+            },
+            setLoggedOut(state, payload = false) {
+              state.authStatus = payload
+            },
+            setError(state, payload = false) {
+                state.hasErrors = payload
             },
             setSources(state, {sources}){
                 Vue.set(state.sources, 'sources', sources);
@@ -61,12 +120,30 @@ export function createStore () {
             setNews(state, {source, news}){
                 Vue.set(state.news, source, news);
             },
-            setItem (state, { id, item }) {
+            setItem(state, { id, item }) {
                 Vue.set(state.items, id, item)
             },
-            setAuth (state, payload ) {
-                state.authCredentials['auth'] = payload;
+            setAuth(state, payload = {} ) {
+                state.authD['auth'] = payload;
             }
         }
     })
 }
+
+/*if (results['message'].length > 0) {
+       console.log(results['message']);
+    }
+                    actionA ({ commit }) {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            commit('someMutation')
+                            resolve()
+                        }, 1000)
+                    })}
+
+                    actionB ({ dispatch, commit }) {
+                        return dispatch('actionA').then(() => {
+                            commit('someOtherMutation')
+                        })
+                    }
+                    */

@@ -16,123 +16,14 @@ const LocalStrategy = require('passport-local').Strategy;
 
 const unique = require('./unique');
 const AWS = require('aws-sdk');
-AWS.config.update({
-  region: "ca-central-1",
-  endpoint: "http://127.0.0.1:8000"
+
+const ddb = new AWS.DynamoDB.DocumentClient({
+  region: 'localhost',
+  endpoint: 'http://localhost:8000',
 });
 
-const ddb = new AWS.DynamoDB.DocumentClient();
 
-const tableName = 'user';
-
-function encrypt_password(password) {
-  return bcrypt.hash(password, bcrypt.genSaltSync(5), null);
-}
-
-function valid_password(password, PW) {
-  return bcrypt.compareSync(password, PW);
-}
-
-passport.serializeUser((user,done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(( id, done) => {
-  ddb.getItem({
-    "TableName":tableName,
-    "Key": {"id":{"N":id}}
-    }, (err,data) => {
-    if (err) done(err, data);
-    done(err, {"id": data.Item.id.N, "email": data.Item.email.S, "pw": data.Item.pw.S});
-  })
-});
-
-passport.use('local-signup', new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'password',
-  passReqToCallback: true
-}, (req, email, password, done) => {
-
-  console.log('doing signup');
-
-  const params = {
-    "TableName":tableName,
-    "IndexName":"email-index",
-    "KeyConditions":{
-      "email":{
-        "ComparisonOperator": "EQ",
-        "AttributeValueList": [{"S":email}]
-      }
-    }
-  };
-
-  ddb.query(params, (err,data) => {
-
-    console.log('query', data);
-
-    if (err) return done(err);
-    if (data.Items.length > 0) return done(null, false, { message: 'username/email is already taken' });
-    const params = {
-      "TableName": tableName,
-      "Item" : {
-        "id": {"N": unique.generateUserId()},
-        "email": {"S":email},
-        "pw": {"S": encrypt_password(password)}
-      }
-    };
-
-    ddb.putItem(params, (err, data) => {
-
-      console.log('put', data);
-
-      if (err) {
-        return done(null, false, { message: `Apologies, please try again now. + ${ err }` });
-      } else {
-        return done(null, params.Item);
-      }
-    })
-  })
-
-}));
-
-passport.use('local-signin', new LocalStrategy({
-  usernameField : 'email',
-  passwordField : 'password',
-  passReqToCallback : true
-}, (req, email, password, done) => {
-  const params = {
-    "TableName":tableName,
-    "IndexName":"email-index",
-    "KeyConditions":{
-      "email":{
-        "ComparisonOperator":"EQ",
-        "AttributeValueList":[{"S":email}]
-      }
-    }
-  };
-
-  ddb.query(params, function(err,data){
-    if (err) return done(err);
-
-    if (data.Items.length === 0) return done(null, false, { message: 'No user found.' });
-
-    ddb.getItem({ "TableName": tableName, "Key": { "id":data.Items[0]["id"]} }, (err,data) => {
-
-      if (err) return done(err);
-
-      if (!valid_password(password, data.Item.pw.S)) {
-
-        return done(null, false, { message: `Oops! Wrong password..` });
-
-      } else {
-
-        return done(null, data.Item);
-
-      }
-    })
-  });
-
-}));
+const tableName = process.env.DYNAMODB_TABLE;
 
 const server = express();
 
@@ -182,10 +73,24 @@ renderer = createRenderer(bundle, {
 server.use(express.urlencoded());
 server.use(express.json());
 
+const opts = {
+  table: 'server-glade-sessions',
+  AWSConfigJSON: {
+      region: 'localhost'
+  },
+  client: new AWS.DynamoDB({ endpoint: ('http://localhost:8000')})
+};
+
+const DynamoDBStore = require('connect-dynamodb')({session: session});
+
 server.use(cookieParser());
 server.use(session({
+  store: new DynamoDBStore(opts),
   secret: '!@2fpLxthn',
   resave: false,
+  cookie: {
+
+  },
   saveUninitialized: false
 }));
 
@@ -215,41 +120,182 @@ server.use('/service-worker.js', serve('./dist/service-worker.js'));
 // https://www.nginx.com/blog/benefits-of-microcaching-nginx/
 server.use(microcache.cacheSeconds(1, req => useMicroCache && req.originalUrl));
 
+// db
+
+function encrypt_password(password) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(5))
+}
+
+function valid_password(password, PW) {
+  return bcrypt.compareSync(password, PW);
+}
+
+passport.serializeUser(function(user,done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function( id, done) {
+  ddb.get({
+    TableName:tableName,
+    Key: {
+      id: id
+    }
+  }).promise().then( data => {
+    done(null, {
+      id: data.Item.id.S,
+      email: data.Item.email.S,
+      pw: data.Item.pw.S
+    });
+  }).catch(err => {
+    if (err) done(err, data);
+  })
+});
+
+passport.use('local-signup', new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password',
+  passReqToCallback: true
+}, function (req, email, password, done)  {
+  const params = {
+    TableName:tableName,
+    IndexName:"email-index",
+    KeyConditionExpression: "#email = :email",
+    ExpressionAttributeNames:{
+      "#email": "email"
+    },
+    ExpressionAttributeValues: {
+      ":email":email
+    }
+  };
+
+  ddb.query(params).promise().then( (data) => {
+    if (data.Items.length > 0) return done(null, false, req.flash('message', 'Email is already taken'));
+
+    let id = unique.generateUserId();
+    let emailVal = email;
+    let pw = encrypt_password(password);
+
+    try {
+      const params = {
+        TableName: tableName,
+        Item : {
+          id: id,
+          email: emailVal,
+          pw: pw
+        }
+      };
+
+      ddb.put(params).promise().then(() => {
+        return done(null, params.Item);
+      }).catch((err) => {
+        return done(null, false, req.flash('message', 'Apologies, please try again now.'));
+      });
+    } catch (error) {
+      return done(null, error)
+    }
+
+  }).catch((err) => {
+    return done(err);
+  });
+
+}));
+
+passport.use('local-signin', new LocalStrategy({
+  usernameField : 'email',
+  passwordField : 'password',
+  passReqToCallback : true
+}, function (req, email, password, done) {
+  const params = {
+    TableName:tableName,
+    IndexName:"email-index",
+    KeyConditionExpression: "#email = :email",
+    ExpressionAttributeNames:{
+      "#email": "email"
+    },
+    ExpressionAttributeValues: {
+      ":email":email
+    }
+  };
+
+  ddb.query(params).promise().then(data => {
+
+    if (data.Items.length === 0) return done(null, false, req.flash('message', 'User not found.' ));
+
+    ddb.get({
+      TableName: tableName,
+      Key: {
+        id: data.Items[0]["id"]
+      }
+      }).promise().then(data => {
+
+      if (!valid_password(password, data.Item.pw)) {
+
+        return done(null, false, req.flash(`message`, `Oops! Wrong password..`));
+
+      } else {
+
+        return done(null, data.Item);
+
+      }
+    }).catch(err => {
+      return done(err)
+    })
+  }).catch(err => {
+    return done(err)
+
+  });
+
+}));
+
+// routes
+
 server.get('*', (req, res, next) => {
   const s = Date.now();
+
+  // protected routes
+
+  if (req.originalUrl === '/profile' && !req.session.authenticated) {
+    res.redirect('/login');
+  }
+
+  if (req.originalUrl === '/dashboard' && !req.session.authenticated) {
+    res.redirect('/login');
+  }
+
+  if (req.originalUrl === '/login' && req.session.authenticated) {
+    res.redirect('/dashboard');
+  }
+
+  if (req.originalUrl === '/signup' && req.session.authenticated) {
+    res.redirect('/profile');
+  }
+
+  // headers
 
   res.setHeader("Content-Type", "text/html");
   res.setHeader("Server", serverInfo);
 
-    let context = {
-        title: 'MUX',
-        url: req.url,
-        csrfToken: req.csrfToken()
-    };
+  // render
 
-    if (req.originalUrl === '/profile') {
-        context['dat'] = 'some dara'
-    }
-    
-    /*if (req.originalUrl === '/signup') {
-        context['messages'] = req.flash('error');
-      context['hasErrors'] = context['messages'].length > 0
-
-    }*/
+  let context = {
+      title: 'MUX',
+      url: req.url,
+      csrfToken: req.csrfToken(),
+      authenticated: req.session.authenticated
+  };
 
   const handleError = err => {
 
     if (err.url) {
       res.redirect(err.url)
     } else if (err.code === 404) {
-      res.status(404).send('404 | Page Not Found')
+      res.status(404).send('Page Not Found')
     } else {
       // Render Error Page or Redirect
-      res.status(500).send('500 | Internal Server Error');
       console.error(`error during render : ${req.url}`);
-      console.error(err.stack)
+      console.error(500, err.stack);
+      res.status(500).send('Page Not Found')
     }
-
   };
 
   renderer.renderToString(context, (err, html) => {
@@ -258,42 +304,115 @@ server.get('*', (req, res, next) => {
     }
     res.send(html);
     console.log(`whole request: ${Date.now() - s}ms`)
-  })
+  });
 });
 
-/* passport.authenticate('local-signup', {
-  successRedirect : '/profile',
-  failureRedirect : '/login',
-  failureFlash : true
-}));*/
-
 server.post('/signup',
-    (req, res, next) => {
-      console.log(req.body);
-      passport.authenticate('local-signup', { failureFlash : true }, (err, user, info) => {
-        req.session.save((err) => {
-          if (err) {
-            return next(err);
+    function (req, res, next) {
+      console.log(req.session.id, req.session);
+
+      passport.authenticate('local-signup', { failureFlash : true },(err, user, info) => {
+
+          let outData = {};
+
+          if (req.session.access_times) {
+            req.session.access_times++;
+            outData['visited'] = req.session.access_times;
+          } else {
+            req.session.access_times = 1;
+            outData['welcome'] = 'Welcome To Saas-Contrive'
           }
-          res.status(200).json({
-            test: user,
-            test1: info
+
+          if (user) {
+            req.session.authenticated = true;
+          }
+
+          req.session.save((err) => {
+            if (err) {
+              return next(err)
+            }
+
+            if (user) {
+              req.flash('authenticated', true);
+              res.status(200).json({
+                info: user,
+                authenticated: req.flash('authenticated'),
+                message: req.flash('message'),
+                redirect: '/profile',
+                ...outData
+              });
+            } else {
+              res.status(200).json({
+                info: info,
+                authenticated: req.session.authenticated,
+                message: req.flash('message'),
+                redirect: '/signup',
+                ...outData
+              });
+            }
+
           });
-        });
       })(req, res, next);
     });
 
-server.post('/signin', (req, res, next) => {
-  if (req.originalUrl === '/signin') {
+server.post('/logout',
+  function(req, res){
+    req.flash('authenticated', false);
+    req.session.authenticated = false;
+    req.logout();
     res.status(200).json({
-      success: true,
-      msg: "signin data received"
+      authenticated: req.flash('authenticated'),
+      message: 'Bye, Next Time',
+      redirect: '/'
     });
-  } else {
-    console.error(`error during post : ${ req.url }`);
-    res.status(500).send('500 | Internal Server Error');
   }
-  /*res.redirect('/');*/
-});
+);
+
+server.post('/signin',
+  function (req, res, next) {
+    console.log(req.session.id, req.session);
+
+    passport.authenticate('local-signin', { failureFlash : true },(err, user, info) => {
+
+      let outData = {};
+
+      if (req.session.access_times) {
+        req.session.access_times++;
+        outData['visited'] = req.session.access_times;
+      } else {
+        req.session.access_times = 1;
+        outData['welcome'] = 'Welcome To Saas-Contrive'
+      }
+
+      if (err) {
+        return next(err)
+      }
+
+      if (user) {
+        req.session.authenticated = true;
+      }
+
+      if (user) {
+        req.flash('authenticated', true);
+        res.status(200).json({
+          info: user,
+          authenticated: req.flash('authenticated'),
+          message: req.flash('message'),
+          redirect: '/dashboard',
+          ...outData
+        });
+      } else {
+        res.status(200).json({
+          info: info,
+          authenticated: req.session.authenticated,
+          message: req.flash('message'),
+          redirect: '/login',
+          ...outData
+        });
+      }
+
+    })(req, res, next);
+  }
+);
 
 module.exports = server;

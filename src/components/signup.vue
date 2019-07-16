@@ -17,13 +17,6 @@
             </div>
             <form :model="form" @submit.prevent="makeSubmit" class="contact-form">
               <div class="control-material is-secondary has-icons-right">
-                <input class="material-input" v-model="form.username" type="text" required>
-                <span class="material-highlight"></span>
-                <span class="bar"></span>
-                <label>Username</label>
-              </div>
-
-              <div class="control-material is-secondary has-icons-right">
                 <input class="material-input" v-model="form.email" type="text" required>
                 <span class="material-highlight"></span>
                 <span class="bar"></span>
@@ -44,19 +37,18 @@
               </div>
             </form>
             <div class="has-text-centered">
-              <article v-if="hasError" class="message is-danger is-small">
-                <div class="message-body">
-                  <button class="delete is-small" @click="clearMessages" aria-label="delete"></button>
-                  <span v-for="message in messages">
-                    <span><strong>Error</strong>, {{ message }}</span>
-                  </span>
-                </div>
-              </article>
-
               <p class="links">Already have an account?
                 <router-link to="/login">Log in now !</router-link>
               </p>
             </div>
+            <article v-if="hasError" class="message is-danger is-small">
+              <button class="delete clear" @click="clearMessages" aria-label="delete"></button>
+              <div class="message-body">
+                <span v-for="message in messages">
+                <span> {{ message }}</span>
+              </span>
+              </div>
+            </article>
           </div>
         </div>
         <div class="bnr column is-8"></div>
@@ -78,7 +70,6 @@ export default {
       siteName: "MUX-EXP",
       token: null,
       form: {
-        username: '',
         email: '',
         password: ''
       }
@@ -86,6 +77,11 @@ export default {
   },
   components: {
     particle: Particle
+  },
+  created() {
+    if (this.authState) {
+      this.doRedirect()
+    }
   },
   mounted() {
     let th = this;
@@ -102,25 +98,35 @@ export default {
   },
   computed: mapState({
     messages(state) {
-      return state.messages
+      return state.authD['auth'].message
     },
     hasError(state) {
       return state.hasErrors
+    },
+    authState(state) {
+      return state.authStatus
     }
   }),
   methods: {
     clearMessages() {
       return this.$store.dispatch('clearMessages')
     },
+    doRedirect() {
+      return this.$router.push('/profile')
+    },
     setToken(t) {
       this.token = t;
       console.log(this.token)
     },
     makeSubmit() {
-      // userAlias: this.form.username,
-      console.log('sending validation data', this.form.email + ' ' + this.form.password );
-      return this.$store.dispatch('doSignup',  { details: {username: this.form.email, password: this.form.password}, sec: this.token})
+      return this.$store.dispatch('doSignup',  { details: {username: this.form.email, password: this.form.password}, sec: this.token}).then(results => {
+          console.log(results);
+        if (results.redirect) this.$router.push(results.redirect)
+      })
     }
   }
 };
 </script>
+<style lang="scss" scoped>
+
+</style>
