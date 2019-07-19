@@ -6,13 +6,16 @@
         <div class="login column is-4 ">
           <div class="aContent">
             <div class="has-text-centered">
-              <img
+              <!--<img
                       class="login-logo logos"
-                      alt="MUX-EXP"
+                      alt="accessros"
                       src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png"
                       width="150"
                       height="150"
-              />
+              />-->
+                <span class="login-logo logos">
+                    <logos></logos>
+                </span>
               <p class="logo">{{siteName}}</p>
             </div>
             <form :model="form" @submit.prevent="makeSubmit" class="contact-form">
@@ -60,6 +63,7 @@
 
 <script>
   import Particle from "./Particle.vue";
+  import Logos from "./logos.vue";
   import { mapState } from 'vuex';
   import $ from "jquery";
 
@@ -67,7 +71,7 @@ export default {
   name: "login",
   data: function() {
     return {
-      siteName: "MUX-EXP",
+      siteName: "accessros",
       token: null,
       form: {
         email: '',
@@ -76,7 +80,8 @@ export default {
     }
   },
   components: {
-    particle: Particle
+    'particle': Particle,
+    'logos': Logos
   },
   mounted() {
     let th = this;

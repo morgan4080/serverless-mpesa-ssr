@@ -2,7 +2,8 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <router-link to="/" tag="span" class="navbar-item">
-                <span id="dashlogo">{{ siteName }}</span>
+                <logos></logos>
+                <span id="ellogo">{{siteName}}</span>
             </router-link>
             <a class="sidebar-close" href="javascript:void(0);"><i data-feather="x"></i></a>
         </div>
@@ -41,12 +42,16 @@
 
 <script>
     import $ from "jquery";
+    import Logos from "./logos.vue";
     export default {
         name: "sidenav",
         data: function() {
             return {
-                siteName: 'MUXEXP'
+                siteName: 'accessros'
             }
+        },
+        components:{
+          'logos': Logos
         },
         mounted() {
             $(document).ready(function($) {

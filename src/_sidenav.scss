@@ -141,8 +141,8 @@
               padding-left: 62px;
               border-bottom: 1px solid #cc2f03;
               font-size: .8rem;
-              background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-              background: linear-gradient(to left,#f28705,#da1b60);
+              background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+              background: linear-gradient(to left,#f28705,#ee0a65);
               -webkit-background-clip: text;
               -webkit-text-fill-color: transparent;
               -webkit-box-decoration-break: clone;
@@ -172,7 +172,7 @@
       position: relative;
     }
     li.have-children.active > a, li.have-children.active > a span, li.have-children.active > a span:after {
-      background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
+      background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       -webkit-box-decoration-break: clone;

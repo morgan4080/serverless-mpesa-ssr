@@ -10,10 +10,12 @@
 
 <script>
 import { mapState } from 'vuex';
+import Feather from 'feather-icons';
   export default {
       name: "App",
       mounted () {
-
+          //Init feather icons
+          Feather.replace();
       },
       data: function () {
           return {

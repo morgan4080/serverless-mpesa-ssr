@@ -3,6 +3,7 @@
         <div class="container">
             <div class="navbar-brand">
                 <router-link to="/" tag="span" class="navbar-item">
+                    <logos></logos>
                     <span id="ellogo">{{siteName}}</span>
                 </router-link>
 
@@ -92,14 +93,17 @@
 
 <script>
     import $ from "jquery";
-    import Feather from 'feather-icons';
+    import Logos from "./logos.vue";
     export default {
         name: "dashnav",
         data: function() {
             return {
-                siteName: "MUX-EXP",
+                siteName: "accessros",
                 token: null
             }
+        },
+        components: {
+          'logos': Logos
         },
         methods: {
             doLogout() {
@@ -142,8 +146,6 @@
                     $('.menu-icon-wrapper').toggleClass('open');
                     $('.sidebar').toggleClass('is-active');
                 });
-                //Init feather icons
-                Feather.replace();
             });
         }
     }

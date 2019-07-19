@@ -4,7 +4,8 @@
             <!-- Logo -->
             <div class="footer-logo">
                 <a href="#">
-                    <img class="rotating" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" alt="">
+                    <!--<img class="rotating" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" alt="">-->
+                    <logos></logos>
                     <div class="brand-name">{{siteName}}</div>
                     <div class="brand-subtitle">State-of-the-art</div>
                 </a>
@@ -61,7 +62,7 @@
                 </div>
             </div>
             <!-- Copyright -->
-            <p class="k-copyright">© 2019 | MUX-EXP. All Rights Reserved</p>
+            <p class="k-copyright">© 2019 | accessros. All Rights Reserved</p>
             <br>
             <!-- Made by -->
             <p class="coded-by">Designed and Coded by <a href="#" target="_blank">M3</a></p>
@@ -73,12 +74,16 @@
 </template>
 
 <script>
+    import Logos from "./logos.vue";
     export default {
         name: "footers",
         data: function () {
             return {
-                siteName: 'MUX-EXP'
+                siteName: 'accessros'
             }
+        },
+        components: {
+            'logos': Logos
         }
     }
 </script>

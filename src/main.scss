@@ -1,5 +1,5 @@
 $primary: #f28705;
-$primary-accent: #da1b60;
+$primary-accent: #ee0a65;
 $white: rgba(255, 255, 255, 0.65);
 $smoke-white: #fcfcfc;
 $placeholder: #cecece;
@@ -15,10 +15,9 @@ $grey-6: #666;
 $grey: #ccc;
 $section-grey: #fcfcfc;
 $light-blue: rgba(94,147,255,.9);
-$secondary: #da1b60;
+$secondary: #ee0a65;
 $secondary-accent: #f28705;
 $muted-grey: #ffffff;
-
 
 $sidebar: #344258;
 $red: #FF7273;
@@ -93,8 +92,8 @@ html::-webkit-scrollbar-track {
 
 /* Handle */
 html::-webkit-scrollbar-thumb {
-  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
   border-radius: 5px;
   -webkit-box-shadow: inset 2px 2px 2px #161619, inset -2px -2px 2px rgba(0,0,0,.25);
   box-shadow: inset 2px 2px 2px #161619, inset -2px -2px 2px rgba(0,0,0,.25);
@@ -102,8 +101,8 @@ html::-webkit-scrollbar-thumb {
 
 /* Handle on hover */
 html::-webkit-scrollbar-thumb:hover {
-  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
 }
 
 p {
@@ -190,7 +189,7 @@ p {
   }
 
   .navbar-item a {
-    background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#da1b60));
+    background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#ee0a65));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -webkit-box-decoration-break: clone;
@@ -270,10 +269,10 @@ p {
 }
 
 .navbar-item img {
-  max-height: 3rem;
+/*  max-height: 3rem;
   max-width: 3rem;
   height: 3rem;
-  animation: rotating 6s linear infinite;
+  animation: rotating 6s linear infinite;*/
 }
 
 #ellogo {
@@ -281,14 +280,13 @@ p {
   font-size: 1.2rem;
   font-weight: 900;
   padding: 0 10px;
-  text-transform: uppercase;
   letter-spacing: 3px;
   color: #fff;
 }
 
 .hero .navbar.is-light .navbar-burger span, .hero .navbar.is-dark .navbar-burger span {
-  background: linear-gradient(to left,#f28705,#da1b60) !important;
-  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#da1b60));
+  background: linear-gradient(to left,#f28705,#ee0a65) !important;
+  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#ee0a65));
 }
 
 .navbar-divider {
@@ -296,8 +294,8 @@ p {
 }
 
 #ellogo:hover {
-  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-box-decoration-break: clone;
@@ -311,15 +309,14 @@ p {
 
 .navbar-dropdown {
   font-family: 'Cabin', sans-serif;
-  font-size: 0.77rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
 
-
 @media only screen and (min-width: 1024px) {
   .navbar-dropdown a.navbar-item {
-    background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#da1b60));
-    background: linear-gradient(to left, #f28705, #da1b60);
+    background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#ee0a65));
+    background: linear-gradient(to left, #f28705, #ee0a65);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -webkit-box-decoration-break: clone;
@@ -413,8 +410,8 @@ p {
 
 .button.is-primary:hover {
   color: #000000;
-  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,left bottom,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
 }
 
 .button.slanted {
@@ -436,7 +433,7 @@ p {
   position: relative;
   display: block;
   z-index: 3;
-  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
+  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-box-decoration-break: clone;
@@ -477,8 +474,8 @@ p {
 }
 
 .title.main-title:hover {
-  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-box-decoration-break: clone;
@@ -546,8 +543,8 @@ p {
 .divider {
   height: 3px;
   width: 75px;
-  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-  background: linear-gradient(to left,#f28705,#da1b60);
+  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+  background: linear-gradient(to left,#f28705,#ee0a65);
   margin: 20px 0;
 }
 
@@ -590,8 +587,8 @@ p {
 }
 
 div.banner {
-  background-image: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-  background-image: linear-gradient(to left,#f28705,#da1b60);
+  background-image: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+  background-image: linear-gradient(to left,#f28705,#ee0a65);
   position: relative;
 }
 
@@ -656,6 +653,14 @@ div.banner {
   transform: rotate(-270deg);
 }
 
+.burger.is-active:hover {
+  transform: rotate(180deg);
+}
+
+a.navbar-item:hover {
+  background-color: transparent;
+  color: #fff;
+}
 .parent .is-active {
   -webkit-transition-delay: .2s,.2s;
   transition-delay: .2s,.2s;
@@ -673,6 +678,10 @@ div.banner {
   background-color: transparent !important;
 }
 
+img.logos {
+  max-width: 150px;
+}
+
 .auth {
   overflow: hidden;
   font-family: 'Cabin', sans-serif;
@@ -680,17 +689,15 @@ div.banner {
 
   .logo {
     font-family: 'Cabin', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 900;
-    text-transform: uppercase;
     letter-spacing: 3px;
     color: #fff;
-    margin-bottom: 50px;
   }
 
   .logo:hover {
-    background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-    background: linear-gradient(to left,#f28705,#da1b60);
+    background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+    background: linear-gradient(to left,#f28705,#ee0a65);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -webkit-box-decoration-break: clone;
@@ -703,12 +710,11 @@ div.banner {
     position: relative;
     color: #fff;
     font-family: 'Cabin', sans-serif;
-    font-size: .8rem;
     z-index: 2;
 
     a {
-      background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-      background: linear-gradient(to left,#f28705,#da1b60);
+      background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+      background: linear-gradient(to left,#f28705,#ee0a65);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       -webkit-box-decoration-break: clone;
@@ -777,8 +783,8 @@ div.banner {
 }
 
 .title:hover {
-  background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#da1b60));
-  background: linear-gradient(to left, #f28705, #da1b60);
+  background: -webkit-gradient(linear, left top, right top, from(#f28705), to(#ee0a65));
+  background: linear-gradient(to left, #f28705, #ee0a65);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-box-decoration-break: clone;
@@ -895,9 +901,9 @@ General Keyframes animations
   75% { transform: scale(0.95, 1.05); }
 }
 
-#dashlogo {
-  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#da1b60));
-  background: linear-gradient(270deg,#f28705,#da1b60);
+/*#dashlogo {
+  background: -webkit-gradient(linear,left top,right top,from(#f28705),to(#ee0a65));
+  background: linear-gradient(270deg,#f28705,#ee0a65);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   -webkit-box-decoration-break: clone;
@@ -909,10 +915,10 @@ General Keyframes animations
   padding: 0 10px;
   text-transform: uppercase;
   letter-spacing: 3px;
-}
+}*/
 
 .message.is-danger {
-  background-color: #fff5f705;
+  background-color: #b5b5b5;
   margin: 50px;
 }
 .clear {

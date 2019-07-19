@@ -278,7 +278,7 @@ server.get('*', (req, res, next) => {
   // render
 
   let context = {
-      title: 'MUX',
+      title: 'accessros | web craft',
       url: req.url,
       csrfToken: req.csrfToken(),
       authenticated: req.session.authenticated
@@ -320,7 +320,7 @@ server.post('/signup',
             outData['visited'] = req.session.access_times;
           } else {
             req.session.access_times = 1;
-            outData['welcome'] = 'Welcome To Saas-Contrive'
+            outData['welcome'] = 'Welcome To acessr'
           }
 
           if (user) {

@@ -4,11 +4,13 @@
         <nav id="navbar-clone" v-scroll="handleScroll" :class="{unCollapse: isCollapse}" class="navbar is-fixed is-dark parent" role="navigation" aria-label="main navigation">
             <div class="container">
                 <div class="navbar-brand">
-
-                        <router-link to="/" tag="span" class="navbar-item">
-                            <img class="logos" alt="MUX-EXP" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" width="200" height="200">
-                            <span id="ellogo">{{siteName}}</span>
-                        </router-link>
+                    <router-link to="/" tag="span" class="navbar-item">
+<!--
+                        <img class="logos" alt="accessros" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" width="200" height="200">
+-->
+                        <logos></logos>
+                        <span id="ellogo">{{siteName}}</span>
+                    </router-link>
 
                     <span :class="is_active" @click="switchCollapse" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
                         <span aria-hidden="true"></span>
@@ -88,7 +90,7 @@
             <div class="container">
                 <div class="navbar-brand">
                         <router-link to="/" tag="span" class="navbar-item">
-                            <img class="logos" alt="MUX-EXP" src="https://epesa.s3.amazonaws.com/fd50a070-d5c9-4a0d-8262-9c57beb27f9a_200x200.png" width="200" height="200">
+                            <logos></logos>
                             <span id="ellogo">{{siteName}}</span>
                         </router-link>
 
@@ -169,14 +171,18 @@
 
 <script>
     import { TimelineMax } from "gsap";
+    import Logos from "./logos.vue";
     export default {
         name: "NavBar",
         data: function () {
             return {
                 isCollapse: true,
                 isntExpanded: true,
-                siteName: 'MUX-EXP'
+                siteName: 'accessros'
             }
+        },
+        components: {
+            'logos': Logos
         },
         mounted () {
 
